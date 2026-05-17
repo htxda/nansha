@@ -1,0 +1,14 @@
+{
+  "name": "nansha-industry-graph",
+  "version": "1.0.0",
+  "description": "南沙产业知识图谱APP - 8+2+3现代化产业体系",
+  "main": "index.ets",
+  "scripts": {
+    "build": "hvigor",
+    "clean": "hvigor clean"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@ohos/hvigor": "^4.0.0"
+  }
+}
