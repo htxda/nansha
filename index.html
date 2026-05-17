@@ -1,1478 +1,497 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>南沙产业图谱编译 - 8+2+3现代化产业体系</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --primary-color: #007DFF;
-      --primary-dark: #001A33;
-      --secondary-color: #6B5CA5;
-      --accent-color: #FFD700;
-      --success-color: #00C853;
-      --text-primary: #FFFFFF;
-      --text-secondary: #8E8E93;
-      --card-bg: #0A2463;
-      --border-color: #1E3A5F;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background-color: var(--primary-dark);
-      color: var(--text-primary);
-      min-height: 100vh;
-    }
-
-    .page {
-      display: none;
-      min-height: 100vh;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    /* Header */
-    .header-section {
-      text-align: center;
-      padding: 32px 16px 24px;
-    }
-
-    .header-section h1 {
-      font-size: 28px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      margin-bottom: 8px;
-      background: linear-gradient(135deg, #00D4FF, #007DFF);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .header-section p {
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    /* Section */
-    .section {
-      padding: 0 16px 24px;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .section-number {
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    .section-title {
-      font-size: 16px;
-      font-weight: medium;
-    }
-
-    /* Grid Layout */
-    .grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .grid-4 {
-      grid-template-columns: repeat(4, 1fr);
-    }
-
-    .grid-2 {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-
-    .grid-1 {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    /* Cards */
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      opacity: 0.2;
-      border-radius: 12px;
-    }
-
-    .card-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .card-small {
-      min-height: 80px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-
-    .card-small .card-title {
-      font-size: 14px;
-      font-weight: medium;
-      margin-bottom: 4px;
-    }
-
-    .card-small .card-subtitle {
-      font-size: 10px;
-      color: var(--text-secondary);
-    }
-
-    .card-medium {
-      min-height: 100px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-
-    .card-medium .card-title {
-      font-size: 16px;
-      font-weight: medium;
-      margin-bottom: 4px;
-    }
-
-    .card-medium .card-subtitle {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .card-large {
-      min-height: 140px;
-      background: linear-gradient(135deg, var(--card-bg), var(--border-color));
-    }
-
-    .card-large .card-title {
-      font-size: 24px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      margin-bottom: 12px;
-    }
-
-    .card-large .card-stats {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 12px;
-    }
-
-    .card-large .stat-item {
-      text-align: center;
-    }
-
-    .card-large .stat-value {
-      font-size: 20px;
-      font-weight: bold;
-      display: block;
-    }
-
-    .card-large .stat-label {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .card-large .card-hint {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.8);
-      text-align: right;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Compile Overlay */
-    .compile-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--primary-dark);
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 32px;
-    }
-
-    .compile-overlay.active {
-      display: flex;
-    }
-
-    .compile-title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 16px;
-    }
-
-    .compile-industry {
-      font-size: 18px;
-      color: #00D4FF;
-      font-weight: medium;
-      margin-bottom: 24px;
-    }
-
-    .progress-bar {
-      width: 80%;
-      height: 8px;
-      background: var(--border-color);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 12px;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #00D4FF, #007DFF);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    .compile-message {
-      font-size: 14px;
-      color: var(--text-secondary);
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .compile-result {
-      text-align: center;
-      animation: fadeIn 0.5s ease;
-    }
-
-    .compile-result-text {
-      font-size: 16px;
-      color: var(--success-color);
-      font-weight: medium;
-      margin-bottom: 16px;
-    }
-
-    .btn-primary {
-      padding: 12px 48px;
-      background: var(--primary-color);
-      border: none;
-      border-radius: 22px;
-      color: white;
-      font-size: 16px;
-      font-weight: medium;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-      background: #0066CC;
-      transform: scale(1.05);
-    }
-
-    /* Detail Page */
-    .detail-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .btn-back {
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-
-    .btn-back:hover {
-      transform: translateX(-4px);
-    }
-
-    .detail-title {
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    .detail-category {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .detail-content {
-      padding: 16px;
-    }
-
-    /* Graph Section */
-    .graph-section {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 24px;
-    }
-
-    .graph-title {
-      font-size: 16px;
-      font-weight: medium;
-      margin-bottom: 16px;
-    }
-
-    .graph-container {
-      position: relative;
-      width: 100%;
-      height: 420px;
-    }
-
-    .graph-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .graph-node {
-      position: absolute;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .graph-node:hover {
-      transform: scale(1.1);
-    }
-
-    .node-center {
-      width: 80px;
-      height: 80px;
-      left: calc(50% - 40px);
-      top: calc(50% - 40px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-
-    .node-center .node-bg {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      opacity: 0.2;
-      box-shadow: 0 0 20px currentColor;
-    }
-
-    .node-center .node-name {
-      font-size: 16px;
-      font-weight: medium;
-      position: relative;
-      z-index: 1;
-    }
-
-    .node-outer {
-      width: 56px;
-      height: 56px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-
-    .node-outer .node-bg {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      opacity: 0.2;
-      box-shadow: 0 0 12px currentColor;
-    }
-
-    .node-outer .node-name {
-      font-size: 12px;
-      font-weight: medium;
-      position: relative;
-      z-index: 1;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .node-outer .node-type {
-      font-size: 10px;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Wiki Section */
-    .wiki-section {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 24px;
-    }
-
-    .wiki-title {
-      font-size: 16px;
-      font-weight: medium;
-      margin-bottom: 16px;
-    }
-
-    .wiki-overview {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 24px;
-      margin-bottom: 16px;
-    }
-
-    .wiki-section-title {
-      font-size: 12px;
-      font-weight: medium;
-      margin-bottom: 12px;
-    }
-
-    .tech-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .tech-tag {
-      padding: 6px 12px;
-      background: var(--border-color);
-      border-radius: 12px;
-      font-size: 12px;
-    }
-
-    .goals-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .goal-item {
-      display: flex;
-      gap: 8px;
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .goal-bullet {
-      color: #00D4FF;
-    }
-
-    /* Stats Section */
-    .stats-section {
-      margin-bottom: 24px;
-    }
-
-    .stats-title {
-      font-size: 16px;
-      font-weight: medium;
-      margin-bottom: 16px;
-    }
-
-    .stats-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .stat-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 16px;
-      border-left: 4px solid;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-    }
-
-    .stat-value {
-      font-size: 14px;
-      font-weight: medium;
-      line-height: 20px;
-    }
-
-    /* Wiki Panel */
-    .wiki-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--card-bg);
-      border-radius: 16px 16px 0 0;
-      padding: 16px;
-      display: none;
-      animation: slideUp 0.3s ease;
-      max-height: 60vh;
-      overflow-y: auto;
-      z-index: 100;
-    }
-
-    .wiki-panel.active {
-      display: block;
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .panel-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      opacity: 0.3;
-    }
-
-    .panel-info {
-      flex: 1;
-    }
-
-    .panel-title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-
-    .panel-type {
-      font-size: 12px;
-    }
-
-    .btn-close {
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-    }
-
-    .panel-description {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 24px;
-      margin-bottom: 16px;
-    }
-
-    .panel-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .tag-value {
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-size: 12px;
-    }
-
-    /* Widget */
-    .widget-container {
-      width: 320px;
-      background: linear-gradient(135deg, #001A33, #0A2463);
-      border-radius: 16px;
-      padding: 16px;
-      color: white;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
-
-    .widget-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .widget-title {
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    .widget-subtitle {
-      font-size: 10px;
-      color: #00D4FF;
-      opacity: 0.8;
-    }
-
-    .widget-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(0, 125, 255, 0.3);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .widget-content {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .widget-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      opacity: 0.3;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 12px;
-      font-weight: medium;
-      box-shadow: 0 0 12px currentColor;
-    }
-
-    .widget-info {
-      flex: 1;
-    }
-
-    .widget-message {
-      font-size: 12px;
-      line-height: 18px;
-      margin-bottom: 4px;
-    }
-
-    .widget-progress {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .widget-progress-bar {
-      flex: 1;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .widget-progress-fill {
-      height: 100%;
-      border-radius: 2px;
-      transition: width 0.3s ease;
-    }
-
-    .widget-progress-text {
-      font-size: 10px;
-    }
-
-    .widget-indicators {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .widget-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      transition: all 0.3s ease;
-    }
-
-    .widget-dot.active {
-      background: currentColor;
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(100%); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .grid-4 {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .grid-2 {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南沙 8+2+3 产业图谱编译助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: radial-gradient(ellipse at 20% 20%, #0d2137 0%, #050a18 50%, #0a1628 100%);
+            color: #e2e8f0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .matrix-item {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .matrix-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .matrix-item:hover::before {
+            opacity: 1;
+        }
+        .matrix-item:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+        }
+        .compiling-text {
+            display: inline-block;
+            border-right: 2px solid #3b82f6;
+            animation: blink 0.7s infinite;
+        }
+        @keyframes blink { 
+            0%, 100% { border-color: #3b82f6; }
+            50% { border-color: transparent; } 
+        }
+        .node-line {
+            stroke: rgba(59, 130, 246, 0.3);
+            stroke-dasharray: 5;
+            animation: dash 3s linear infinite;
+        }
+        @keyframes dash { 
+            to { stroke-dashoffset: -20; } 
+        }
+        .glow-purple {
+            box-shadow: 0 0 30px rgba(147, 51, 234, 0.3), 0 0 60px rgba(147, 51, 234, 0.1);
+        }
+        .glow-blue {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3), 0 0 60px rgba(59, 130, 246, 0.1);
+        }
+        .glow-gray {
+            box-shadow: 0 0 30px rgba(107, 114, 128, 0.2), 0 0 60px rgba(107, 114, 128, 0.1);
+        }
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .pulse-ring {
+            animation: pulse-ring 2s ease-out infinite;
+        }
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        .progress-gradient {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6);
+            background-size: 200% 100%;
+            animation: progress-shine 2s linear infinite;
+        }
+        @keyframes progress-shine {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .log-item {
+            animation: log-fade 0.3s ease-out forwards;
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+        @keyframes log-fade {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(59, 130, 246, 0.6);
+            border-radius: 50%;
+            animation: particle-float 10s ease-in-out infinite;
+        }
+        @keyframes particle-float {
+            0%, 100% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                scale: 1;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-10vh) translateX(100px) scale(0);
+                opacity: 0;
+            }
+        }
+        .nav-dot {
+            animation: nav-pulse 2s ease-in-out infinite;
+        }
+        @keyframes nav-pulse {
+            0%, 100% {
+                box-shadow: 0 0 10px #3b82f6, 0 0 20px #3b82f6;
+            }
+            50% {
+                box-shadow: 0 0 20px #3b82f6, 0 0 40px #3b82f6;
+            }
+        }
+        .category-badge {
+            transition: all 0.3s ease;
+        }
+        .category-badge:hover {
+            transform: scale(1.05);
+        }
+    </style>
 </head>
-<body>
-  <!-- Home Page -->
-  <div id="homePage" class="page active">
-    <div class="header-section">
-      <h1>南沙产业图谱编译</h1>
-      <p>聚焦 8+2+3 现代化产业体系</p>
-    </div>
+<body class="min-h-screen relative overflow-hidden">
+    <div id="particles-container"></div>
 
-    <!-- 8 Strategic Industries -->
-    <div class="section">
-      <div class="section-header">
-        <span class="section-number" style="color: #007DFF">8</span>
-        <span class="section-title">战略新兴产业</span>
-      </div>
-      <div class="grid grid-4" id="strategicGrid"></div>
-    </div>
-
-    <!-- 2 Traditional Industries -->
-    <div class="section">
-      <div class="section-header">
-        <span class="section-number" style="color: #6B7280">2</span>
-        <span class="section-title">传统优势产业</span>
-      </div>
-      <div class="grid grid-2" id="traditionalGrid"></div>
-    </div>
-
-    <!-- 3 Future Industries -->
-    <div class="section">
-      <div class="section-header">
-        <span class="section-number" style="color: #FFD700">3</span>
-        <span class="section-title">未来产业</span>
-      </div>
-      <div class="grid grid-1" id="futureGrid"></div>
-    </div>
-  </div>
-
-  <!-- Compile Overlay -->
-  <div id="compileOverlay" class="compile-overlay">
-    <div class="compile-title">编译知识图谱</div>
-    <div class="compile-industry" id="compileIndustry"></div>
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
-    <div class="compile-message" id="compileMessage"></div>
-    <div id="compileResult" style="display: none;">
-      <div class="compile-result-text">知识图谱完整度：98%</div>
-      <button class="btn-primary" onclick="navigateToDetail()">进入图谱</button>
-    </div>
-  </div>
-
-  <!-- Detail Page -->
-  <div id="detailPage" class="page">
-    <div class="detail-header">
-      <img src="https://api.iconify.design/ic/baseline-arrow-back.svg?color=white" 
-           class="btn-back" onclick="goBack()" />
-      <div>
-        <div class="detail-title" id="detailTitle"></div>
-        <div class="detail-category" id="detailCategory"></div>
-      </div>
-    </div>
-    <div class="detail-content">
-      <div class="graph-section">
-        <div class="graph-title">产业知识图谱</div>
-        <div class="graph-container" id="graphContainer">
-          <canvas class="graph-canvas" id="graphCanvas"></canvas>
-          <div id="graphNodes"></div>
+    <nav class="relative z-10 p-6 flex justify-between items-center border-b border-white/8">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 rounded-full bg-blue-500 nav-dot"></div>
+            <span class="text-sm tracking-[0.3em] uppercase font-bold text-blue-400">Nansha Industry OS</span>
         </div>
-      </div>
-      <div class="wiki-section">
-        <div class="wiki-title">产业百科</div>
-        <div class="wiki-overview" id="wikiOverview"></div>
-        <div>
-          <div class="wiki-section-title" style="color: #00D4FF">核心技术</div>
-          <div class="tech-tags" id="techTags"></div>
-        </div>
-        <div>
-          <div class="wiki-section-title" style="color: #FFD700">发展目标</div>
-          <div class="goals-list" id="goalsList"></div>
-        </div>
-      </div>
-      <div class="stats-section">
-        <div class="stats-title">产业数据</div>
-        <div class="stats-grid" id="statsGrid"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Wiki Panel -->
-  <div id="wikiPanel" class="wiki-panel">
-    <div class="panel-header">
-      <div class="panel-icon" id="panelIcon"></div>
-      <div class="panel-info">
-        <div class="panel-title" id="panelTitle"></div>
-        <div class="panel-type" id="panelType"></div>
-      </div>
-      <img src="https://api.iconify.design/ic/baseline-close.svg?color=white" 
-           class="btn-close" onclick="closeWikiPanel()" />
-    </div>
-    <div class="panel-description" id="panelDescription"></div>
-    <div class="panel-tag" id="panelTag"></div>
-  </div>
-
-  <script>
-    const industryData = [
-      { id: 'ai', name: '人工智能', category: 'strategic', color: '#00D4AA', gradientColors: ['#00D4AA', '#007DFF'],
-        enterprises: [
-          { id: 'ai-1', name: '云从科技', type: '龙头', description: '中国领先的人工智能企业，专注于计算机视觉和人机交互' },
-          { id: 'ai-2', name: '小马智行', type: '龙头', description: '自动驾驶领域领军企业，在南沙设立研发总部' },
-          { id: 'ai-3', name: '暗物智能', type: '创新', description: '认知智能领域独角兽企业' }
-        ],
-        scenarios: [
-          { id: 'ai-s1', name: '南沙人工智能产业园', type: '园区', description: '集聚AI产业链上下游企业' },
-          { id: 'ai-s2', name: '粤港澳大湾区AI创新中心', type: '平台', description: 'AI技术研发与成果转化平台' }
-        ],
-        policies: [
-          { id: 'ai-p1', name: '人工智能专项扶持计划', type: '资金', description: '最高给予5000万元项目资助' },
-          { id: 'ai-p2', name: 'AI人才特区政策', type: '人才', description: '顶尖人才最高享受1亿元奖励' }
-        ],
-        wiki: {
-          summary: '南沙人工智能产业集群',
-          overview: '依托南沙自贸区政策优势，构建涵盖基础层、技术层、应用层的完整AI产业链',
-          keyTech: ['深度学习', '计算机视觉', '自然语言处理', '自动驾驶'],
-          developmentGoals: ['2025年产业规模突破500亿元', '培育10家以上独角兽企业']
-        },
-        ranking: '全国Top10 AI产业集聚区',
-        chainPosition: '中游：算法研发与应用',
-        corePolicy: '人工智能企业落户最高奖励2000万元'
-      },
-      { id: 'semiconductor', name: '半导体', category: 'strategic', color: '#6B5CA5', gradientColors: ['#6B5CA5', '#007DFF'],
-        enterprises: [
-          { id: 'semi-1', name: '粤芯半导体', type: '龙头', description: '华南地区最大的12英寸晶圆制造企业' },
-          { id: 'semi-2', name: '芯粤能', type: '骨干', description: '专注于功率半导体研发制造' },
-          { id: 'semi-3', name: '广州慧智微电子', type: '创新', description: '射频前端芯片设计领军企业' }
-        ],
-        scenarios: [
-          { id: 'semi-s1', name: '广州科学城半导体产业园', type: '园区', description: '半导体产业集聚发展平台' },
-          { id: 'semi-s2', name: '南沙集成电路设计基地', type: '基地', description: 'IC设计企业孵化基地' }
-        ],
-        policies: [
-          { id: 'semi-p1', name: '集成电路产业扶持政策', type: '资金', description: '芯片流片费用最高补贴50%' },
-          { id: 'semi-p2', name: '半导体人才计划', type: '人才', description: '紧缺人才最高年薪补贴100万元' }
-        ],
-        wiki: {
-          summary: '南沙半导体产业基地',
-          overview: '构建"设计-制造-封测-材料"完整产业链，打造粤港澳大湾区半导体产业核心区',
-          keyTech: ['芯片设计', '晶圆制造', '封装测试', '半导体材料'],
-          developmentGoals: ['2025年产能达到10万片/月', '培育5家上市企业']
-        },
-        ranking: '华南地区半导体重镇',
-        chainPosition: '全产业链覆盖',
-        corePolicy: '芯片制造项目最高资助10亿元'
-      },
-      { id: 'auto', name: '智能网联汽车', category: 'strategic', color: '#FF9F1C', gradientColors: ['#FF9F1C', '#FF2E63'],
-        enterprises: [
-          { id: 'auto-1', name: '广汽埃安', type: '龙头', description: '广汽集团新能源汽车旗舰品牌' },
-          { id: 'auto-2', name: '小马智行', type: '龙头', description: '自动驾驶技术领军企业' },
-          { id: 'auto-3', name: '文远知行', type: '创新', description: 'L4级自动驾驶解决方案提供商' }
-        ],
-        scenarios: [
-          { id: 'auto-s1', name: '广汽智联新能源汽车产业园', type: '园区', description: '整车及零部件产业集聚' },
-          { id: 'auto-s2', name: '南沙自动驾驶测试场', type: '基地', description: '全国首个封闭测试区域' }
-        ],
-        policies: [
-          { id: 'auto-p1', name: '智能网联汽车专项政策', type: '资金', description: '自动驾驶测试项目最高资助1000万元' },
-          { id: 'auto-p2', name: '智能网联汽车人才计划', type: '人才', description: '引进顶尖人才最高奖励500万元' }
-        ],
-        wiki: {
-          summary: '南沙智能网联汽车产业集群',
-          overview: '打造集研发、测试、生产、运营于一体的智能网联汽车产业生态',
-          keyTech: ['自动驾驶', '车联网', '新能源', '智能座舱'],
-          developmentGoals: ['2025年产能突破50万辆', '建成全国领先的智能网联汽车测试基地']
-        },
-        ranking: '全国智能网联汽车示范区',
-        chainPosition: '整车制造+自动驾驶',
-        corePolicy: '新能源汽车企业落户奖励最高5000万元'
-      },
-      { id: 'biomed', name: '生物医药', category: 'strategic', color: '#FF6B6B', gradientColors: ['#FF6B6B', '#FF8E53'],
-        enterprises: [
-          { id: 'bio-1', name: '广州医药集团', type: '龙头', description: '全国最大的制药企业集团之一' },
-          { id: 'bio-2', name: '百济神州', type: '龙头', description: '全球领先的生物制药企业' },
-          { id: 'bio-3', name: '诺诚健华', type: '创新', description: '专注于肿瘤药物研发' }
-        ],
-        scenarios: [
-          { id: 'bio-s1', name: '南沙国际生物岛', type: '园区', description: '生物医药研发创新集聚区' },
-          { id: 'bio-s2', name: '广州生物医药创新基地', type: '基地', description: '药物研发与临床试验平台' }
-        ],
-        policies: [
-          { id: 'bio-p1', name: '生物医药产业扶持政策', type: '资金', description: '新药研发最高资助3000万元' },
-          { id: 'bio-p2', name: '生物医药人才计划', type: '人才', description: '院士团队最高资助1亿元' }
-        ],
-        wiki: {
-          summary: '南沙生物医药产业基地',
-          overview: '依托国际生物岛，构建"研发-中试-生产-销售"完整产业链',
-          keyTech: ['基因检测', '细胞治疗', '抗体药物', '中药现代化'],
-          developmentGoals: ['2025年产业规模突破300亿元', '培育3家独角兽企业']
-        },
-        ranking: '国家生物医药产业基地',
-        chainPosition: '研发+生产',
-        corePolicy: '生物医药企业研发投入补贴30%'
-      },
-      { id: 'energy', name: '新型储能', category: 'strategic', color: '#11998E', gradientColors: ['#11998E', '#38EF7D'],
-        enterprises: [
-          { id: 'energy-1', name: '亿纬锂能', type: '龙头', description: '国内领先的锂电池制造企业' },
-          { id: 'energy-2', name: '阳光电源', type: '龙头', description: '全球领先的光伏逆变器企业' },
-          { id: 'energy-3', name: '派能科技', type: '创新', description: '储能电池系统领军企业' }
-        ],
-        scenarios: [
-          { id: 'energy-s1', name: '南沙储能产业园', type: '园区', description: '储能产业集聚发展平台' },
-          { id: 'energy-s2', name: '粤港澳大湾区储能示范基地', type: '基地', description: '新型储能技术示范应用' }
-        ],
-        policies: [
-          { id: 'energy-p1', name: '新型储能产业政策', type: '资金', description: '储能项目最高资助2000万元' },
-          { id: 'energy-p2', name: '储能人才计划', type: '人才', description: '高层次人才最高奖励300万元' }
-        ],
-        wiki: {
-          summary: '南沙新型储能产业集群',
-          overview: '打造涵盖储能材料、电芯制造、系统集成的完整产业链',
-          keyTech: ['锂电池', '氢能', '新型储能技术', '智能电网'],
-          developmentGoals: ['2025年储能装机规模突破1GW', '培育5家龙头企业']
-        },
-        ranking: '华南储能产业核心区',
-        chainPosition: '全产业链',
-        corePolicy: '储能项目按投资额给予10%补贴'
-      },
-      { id: 'equipment', name: '高端装备', category: 'strategic', color: '#4ECDC4', gradientColors: ['#4ECDC4', '#44A08D'],
-        enterprises: [
-          { id: 'equip-1', name: '广州数控', type: '龙头', description: '国内最大的机床制造商之一' },
-          { id: 'equip-2', name: '巨轮智能', type: '骨干', description: '工业机器人领军企业' },
-          { id: 'equip-3', name: '明珞装备', type: '创新', description: '智能制造解决方案提供商' }
-        ],
-        scenarios: [
-          { id: 'equip-s1', name: '南沙高端装备制造基地', type: '园区', description: '高端装备研发制造集聚区' },
-          { id: 'equip-s2', name: '智能制造创新中心', type: '平台', description: '工业4.0技术研发平台' }
-        ],
-        policies: [
-          { id: 'equip-p1', name: '高端装备制造政策', type: '资金', description: '首台套装备最高补贴500万元' },
-          { id: 'equip-p2', name: '装备制造人才计划', type: '人才', description: '技能人才最高奖励100万元' }
-        ],
-        wiki: {
-          summary: '南沙高端装备产业基地',
-          overview: '聚焦数控机床、工业机器人、智能制造装备等领域',
-          keyTech: ['数控技术', '工业机器人', '智能制造', '精密制造'],
-          developmentGoals: ['2025年产业规模突破400亿元', '建成国家级智能制造示范基地']
-        },
-        ranking: '全国智能制造示范基地',
-        chainPosition: '装备制造+系统集成',
-        corePolicy: '高端装备企业购置设备补贴20%'
-      },
-      { id: 'ocean', name: '海洋经济', category: 'strategic', color: '#00A8E8', gradientColors: ['#00A8E8', '#007DFF'],
-        enterprises: [
-          { id: 'ocean-1', name: '云洲智能', type: '龙头', description: '全球领先的无人船企业' },
-          { id: 'ocean-2', name: '中海油服', type: '龙头', description: '海洋油气开发服务领军企业' },
-          { id: 'ocean-3', name: '南方海洋科学城', type: '平台', description: '海洋科技创新平台' }
-        ],
-        scenarios: [
-          { id: 'ocean-s1', name: '南沙海洋经济创新示范区', type: '园区', description: '海洋产业集聚发展平台' },
-          { id: 'ocean-s2', name: '粤港澳大湾区海洋科技创新中心', type: '基地', description: '海洋科技研发基地' }
-        ],
-        policies: [
-          { id: 'ocean-p1', name: '海洋经济发展政策', type: '资金', description: '海洋科技项目最高资助2000万元' },
-          { id: 'ocean-p2', name: '海洋人才计划', type: '人才', description: '海洋科技人才最高奖励500万元' }
-        ],
-        wiki: {
-          summary: '南沙海洋经济产业集群',
-          overview: '构建涵盖海洋科技、海洋工程、海洋生物的蓝色经济体系',
-          keyTech: ['无人船技术', '海洋探测', '深海装备', '海洋生物医药'],
-          developmentGoals: ['2025年产业规模突破200亿元', '建成国家级海洋经济示范区']
-        },
-        ranking: '国家海洋经济发展示范区',
-        chainPosition: '海洋科技+装备',
-        corePolicy: '海洋经济项目最高补贴30%'
-      },
-      { id: 'digital', name: '数字经济', category: 'strategic', color: '#A855F7', gradientColors: ['#A855F7', '#6366F1'],
-        enterprises: [
-          { id: 'digital-1', name: '腾讯', type: '龙头', description: '互联网科技巨头，在南沙设立区域总部' },
-          { id: 'digital-2', name: '网易', type: '龙头', description: '知名互联网企业，游戏与云计算领军者' },
-          { id: 'digital-3', name: '唯品会', type: '骨干', description: '知名电商平台企业' }
-        ],
-        scenarios: [
-          { id: 'digital-s1', name: '南沙数字经济产业园', type: '园区', description: '数字经济企业集聚发展' },
-          { id: 'digital-s2', name: '粤港澳大湾区数字经济创新中心', type: '平台', description: '数字技术研发与应用平台' }
-        ],
-        policies: [
-          { id: 'digital-p1', name: '数字经济发展政策', type: '资金', description: '数字经济项目最高资助3000万元' },
-          { id: 'digital-p2', name: '数字经济人才计划', type: '人才', description: '数字技术人才最高奖励200万元' }
-        ],
-        wiki: {
-          summary: '南沙数字经济产业集群',
-          overview: '打造数字产业化和产业数字化发展高地',
-          keyTech: ['云计算', '大数据', '区块链', '工业互联网'],
-          developmentGoals: ['2025年数字经济规模突破1000亿元', '培育20家数字经济龙头企业']
-        },
-        ranking: '粤港澳大湾区数字经济核心区',
-        chainPosition: '数字产业化+产业数字化',
-        corePolicy: '数字经济企业税收优惠最高可达40%'
-      },
-      { id: 'shipping', name: '航运物流', category: 'traditional', color: '#6B7280', gradientColors: ['#6B7280', '#4B5563'],
-        enterprises: [
-          { id: 'ship-1', name: '中远海运', type: '龙头', description: '全球最大的航运企业之一' },
-          { id: 'ship-2', name: '广州港集团', type: '龙头', description: '华南地区最大的港口运营商' },
-          { id: 'ship-3', name: '顺丰速运', type: '骨干', description: '国内领先的快递物流企业' }
-        ],
-        scenarios: [
-          { id: 'ship-s1', name: '南沙港区', type: '园区', description: '世界级深水大港' },
-          { id: 'ship-s2', name: '南沙保税港区', type: '基地', description: '综合保税物流园区' }
-        ],
-        policies: [
-          { id: 'ship-p1', name: '航运物流扶持政策', type: '资金', description: '航运企业最高补贴500万元' },
-          { id: 'ship-p2', name: '物流人才计划', type: '人才', description: '物流高端人才奖励100万元' }
-        ],
-        wiki: {
-          summary: '南沙航运物流枢纽',
-          overview: '依托南沙港区，打造全球航运物流中心',
-          keyTech: ['智能港口', '冷链物流', '多式联运', '物流信息化'],
-          developmentGoals: ['2025年货物吞吐量突破5亿吨', '建成国际航运中心']
-        },
-        ranking: '全球Top50港口',
-        chainPosition: '港口运营+物流服务',
-        corePolicy: '物流企业仓储用地优惠50%'
-      },
-      { id: 'petrochemical', name: '石化钢铁', category: 'traditional', color: '#4B5563', gradientColors: ['#4B5563', '#374151'],
-        enterprises: [
-          { id: 'petro-1', name: '广州石化', type: '龙头', description: '华南地区重要的石油化工企业' },
-          { id: 'petro-2', name: '宝钢股份', type: '龙头', description: '全球领先的钢铁企业' },
-          { id: 'petro-3', name: '南沙炼化', type: '骨干', description: '大型炼化一体化企业' }
-        ],
-        scenarios: [
-          { id: 'petro-s1', name: '南沙石化产业园', type: '园区', description: '石化产业集聚发展平台' },
-          { id: 'petro-s2', name: '钢铁产业基地', type: '基地', description: '现代化钢铁生产基地' }
-        ],
-        policies: [
-          { id: 'petro-p1', name: '石化产业升级政策', type: '资金', description: '技术改造项目最高补贴1000万元' },
-          { id: 'petro-p2', name: '绿色制造政策', type: '资金', description: '节能减排项目补贴50%' }
-        ],
-        wiki: {
-          summary: '南沙石化钢铁产业集群',
-          overview: '打造绿色、智能、高效的现代化石化钢铁产业基地',
-          keyTech: ['智能制造', '节能减排', '新材料', '循环经济'],
-          developmentGoals: ['2025年产业规模突破800亿元', '建成绿色制造示范基地']
-        },
-        ranking: '华南重要的石化钢铁基地',
-        chainPosition: '原材料+新材料',
-        corePolicy: '绿色石化项目最高资助2000万元'
-      },
-      { id: 'deepsea', name: '深海产业', category: 'future', color: '#00D4FF', gradientColors: ['#00D4FF', '#007DFF'],
-        enterprises: [
-          { id: 'deep-1', name: '中国船舶集团', type: '龙头', description: '全球最大的造船企业集团' },
-          { id: 'deep-2', name: '中船重工', type: '龙头', description: '海洋工程装备领军企业' },
-          { id: 'deep-3', name: '云洲智能', type: '创新', description: '无人船与海洋探测领军企业' }
-        ],
-        scenarios: [
-          { id: 'deep-s1', name: '南沙深海科技创新中心', type: '园区', description: '深海技术研发与产业化平台' },
-          { id: 'deep-s2', name: '粤港澳大湾区海洋工程装备基地', type: '基地', description: '海洋工程装备制造基地' }
-        ],
-        policies: [
-          { id: 'deep-p1', name: '深海产业发展政策', type: '资金', description: '深海技术研发最高资助5000万元' },
-          { id: 'deep-p2', name: '深海人才计划', type: '人才', description: '深海领域顶尖人才最高奖励1亿元' }
-        ],
-        wiki: {
-          summary: '南沙深海产业创新中心',
-          overview: '聚焦深海探测、深海装备、深海资源开发三大领域',
-          keyTech: ['深海探测', '潜水器', '海底采矿', '海洋观测'],
-          developmentGoals: ['2025年成为全国深海产业创新高地', '培育5家深海领域领军企业']
-        },
-        ranking: '国家深海技术创新中心',
-        chainPosition: '深海装备+资源开发',
-        corePolicy: '深海产业项目最高资助5000万元'
-      },
-      { id: 'space', name: '空天产业', category: 'future', color: '#FFD700', gradientColors: ['#FFD700', '#FFA500'],
-        enterprises: [
-          { id: 'space-1', name: '中科宇航', type: '龙头', description: '国内领先的商业航天企业' },
-          { id: 'space-2', name: '吉利航天', type: '龙头', description: '民营航天领军企业，卫星制造与发射' },
-          { id: 'space-3', name: '九天微星', type: '创新', description: '微小卫星研发制造企业' }
-        ],
-        scenarios: [
-          { id: 'space-s1', name: '大岗空天产业基地', type: '园区', description: '商业航天产业集聚发展平台' },
-          { id: 'space-s2', name: '南沙卫星产业园', type: '基地', description: '卫星研发制造与应用基地' }
-        ],
-        policies: [
-          { id: 'space-p1', name: '探天九条', type: '资金', description: '商业航天企业最高资助1亿元' },
-          { id: 'space-p2', name: '空天人才计划', type: '人才', description: '航天领域顶尖人才最高奖励2000万元' }
-        ],
-        wiki: {
-          summary: '南沙空天产业集群',
-          overview: '打造集卫星研发、火箭制造、空间应用于一体的商业航天产业生态',
-          keyTech: ['火箭技术', '卫星制造', '航天新材料', '空间信息应用'],
-          developmentGoals: ['2025年形成完整商业航天产业链', '卫星年产量突破100颗']
-        },
-        ranking: '全国商业航天重镇',
-        chainPosition: '卫星制造+火箭发射+应用服务',
-        corePolicy: '探天九条：商业航天企业最高资助1亿元'
-      },
-      { id: 'quantum', name: '量子信息', category: 'future', color: '#A855F7', gradientColors: ['#A855F7', '#EC4899'],
-        enterprises: [
-          { id: 'quantum-1', name: '国盾量子', type: '龙头', description: '国内量子通信领军企业' },
-          { id: 'quantum-2', name: '本源量子', type: '龙头', description: '量子计算领域领军企业' },
-          { id: 'quantum-3', name: '广州量子研究院', type: '平台', description: '量子科技研发创新平台' }
-        ],
-        scenarios: [
-          { id: 'quantum-s1', name: '南沙量子信息产业园', type: '园区', description: '量子信息产业集聚发展' },
-          { id: 'quantum-s2', name: '粤港澳大湾区量子科学中心', type: '基地', description: '量子科技研发基地' }
-        ],
-        policies: [
-          { id: 'quantum-p1', name: '量子信息产业政策', type: '资金', description: '量子科技项目最高资助3000万元' },
-          { id: 'quantum-p2', name: '量子人才计划', type: '人才', description: '量子领域顶尖人才最高奖励1亿元' }
-        ],
-        wiki: {
-          summary: '南沙量子信息产业基地',
-          overview: '聚焦量子通信、量子计算、量子精密测量三大方向',
-          keyTech: ['量子通信', '量子计算', '量子传感', '量子材料'],
-          developmentGoals: ['2025年建成量子信息产业集聚区', '培育3家量子领域独角兽企业']
-        },
-        ranking: '国家量子信息创新高地',
-        chainPosition: '量子通信+量子计算',
-        corePolicy: '量子信息企业研发投入补贴50%'
-      }
-    ];
-
-    let currentIndustry = null;
-
-    function initHomePage() {
-      const strategicGrid = document.getElementById('strategicGrid');
-      const traditionalGrid = document.getElementById('traditionalGrid');
-      const futureGrid = document.getElementById('futureGrid');
-
-      const strategic = industryData.filter(i => i.category === 'strategic');
-      const traditional = industryData.filter(i => i.category === 'traditional');
-      const future = industryData.filter(i => i.category === 'future');
-
-      strategic.forEach(industry => {
-        const card = createSmallCard(industry);
-        strategicGrid.appendChild(card);
-      });
-
-      traditional.forEach(industry => {
-        const card = createMediumCard(industry);
-        traditionalGrid.appendChild(card);
-      });
-
-      future.forEach(industry => {
-        const card = createLargeCard(industry);
-        futureGrid.appendChild(card);
-      });
-    }
-
-    function createSmallCard(industry) {
-      const card = document.createElement('div');
-      card.className = 'card card-small';
-      card.style.setProperty('--card-color', industry.color);
-      card.innerHTML = `
-        <div class="card-content">
-          <div class="card-title">${industry.name}</div>
-          <div class="card-subtitle">${industry.enterprises.length}家龙头企业</div>
-        </div>
-      `;
-      card.querySelector('.card-content').style.color = industry.color;
-      card.onclick = () => handleIndustryClick(industry);
-      return card;
-    }
-
-    function createMediumCard(industry) {
-      const card = document.createElement('div');
-      card.className = 'card card-medium';
-      card.innerHTML = `
-        <div class="card-content">
-          <div class="card-title">${industry.name}</div>
-          <div class="card-subtitle">${industry.enterprises.length}家龙头企业</div>
-        </div>
-      `;
-      card.onclick = () => handleIndustryClick(industry);
-      return card;
-    }
-
-    function createLargeCard(industry) {
-      const card = document.createElement('div');
-      card.className = 'card card-large';
-      card.style.background = `linear-gradient(135deg, ${industry.gradientColors[0]}20, ${industry.gradientColors[1]}20)`;
-      card.innerHTML = `
-        <div class="card-content" style="color: ${industry.color}">
-          <div class="card-title">${industry.name}</div>
-          <div class="card-stats">
-            <div class="stat-item">
-              <span class="stat-value">${industry.enterprises.length}</span>
-              <span class="stat-label">龙头企业</span>
+        <div class="flex items-center gap-4">
+            <div class="text-xs text-white/40">
+                Status: <span class="text-green-400 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                    Compiling Engine Active
+                </span>
             </div>
-            <div class="stat-item">
-              <span class="stat-value">${industry.scenarios.length}</span>
-              <span class="stat-label">产业载体</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-value">${industry.policies.length}</span>
-              <span class="stat-label">扶持政策</span>
-            </div>
-          </div>
-          <div class="card-hint">点击查看知识图谱</div>
         </div>
-      `;
-      card.onclick = () => handleIndustryClick(industry);
-      return card;
-    }
+    </nav>
 
-    function handleIndustryClick(industry) {
-      currentIndustry = industry;
-      document.getElementById('compileIndustry').textContent = industry.name;
-      document.getElementById('compileOverlay').classList.add('active');
-      document.getElementById('compileResult').style.display = 'none';
-      
-      const messages = [
-        '正在从南沙产业数据库提取实体...',
-        '识别企业实体关系...',
-        '建立场景关联图谱...',
-        '提取政策依赖关系...',
-        '构建知识图谱索引...',
-        '知识图谱编译完成!'
-      ];
+    <main class="relative z-10 max-w-7xl mx-auto p-8">
+        <section id="home-view">
+            <header class="mb-12 text-center">
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-500">
+                    南沙产业图谱编译助手
+                </h1>
+                <p class="text-white/50 text-lg">聚焦"8+2+3"现代化产业体系，实现产业知识图谱自动化编译</p>
+            </header>
 
-      let step = 0;
-      const stepDuration = 400;
-      const progressFill = document.getElementById('progressFill');
-      const compileMessage = document.getElementById('compileMessage');
+            <div class="mb-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-1 h-6 bg-gradient-to-b from-purple-500 to-transparent rounded-full"></div>
+                    <h2 class="text-lg font-semibold text-purple-300">未来产业 (3)</h2>
+                    <span class="text-xs text-white/30 ml-auto">核心引擎</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div onclick="startCompile('空天产业', '3')" class="glass p-8 rounded-3xl cursor-pointer matrix-item border-purple-500/20 glow-purple float-animation">
+                        <div class="absolute -right-6 -bottom-6 text-9xl text-purple-500/5 font-bold transition-transform duration-500 hover:scale-110">3</div>
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center mb-4">
+                                <span class="text-2xl">🚀</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-purple-300 mb-2">空天产业</h3>
+                            <p class="text-sm text-white/40">商业航天、卫星互联网、火箭研发</p>
+                            <div class="mt-4 flex gap-2">
+                                <span class="bg-purple-500/10 text-purple-400 text-[10px] px-2 py-1 rounded-full border border-purple-500/20">商业航天</span>
+                                <span class="bg-purple-500/10 text-purple-400 text-[10px] px-2 py-1 rounded-full border border-purple-500/20">卫星通信</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div onclick="startCompile('深海产业', '3')" class="glass p-8 rounded-3xl cursor-pointer matrix-item border-purple-500/20 glow-purple float-animation" style="animation-delay: 0.5s">
+                        <div class="absolute -right-6 -bottom-6 text-9xl text-purple-500/5 font-bold transition-transform duration-500 hover:scale-110">3</div>
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center mb-4">
+                                <span class="text-2xl">🌊</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-purple-300 mb-2">深海产业</h3>
+                            <p class="text-sm text-white/40">深海探测、海洋能源、智能装备</p>
+                            <div class="mt-4 flex gap-2">
+                                <span class="bg-purple-500/10 text-purple-400 text-[10px] px-2 py-1 rounded-full border border-purple-500/20">深海探测</span>
+                                <span class="bg-purple-500/10 text-purple-400 text-[10px] px-2 py-1 rounded-full border border-purple-500/20">海洋工程</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div onclick="startCompile('量子科技', '3')" class="glass p-8 rounded-3xl cursor-pointer matrix-item border-purple-500/20 glow-purple float-animation" style="animation-delay: 1s">
+                        <div class="absolute -right-6 -bottom-6 text-9xl text-purple-500/5 font-bold transition-transform duration-500 hover:scale-110">3</div>
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center mb-4">
+                                <span class="text-2xl">⚛️</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-purple-300 mb-2">量子科技</h3>
+                            <p class="text-sm text-white/40">量子计算、量子通信、量子传感</p>
+                            <div class="mt-4 flex gap-2">
+                                <span class="bg-purple-500/10 text-purple-400 text-[10px] px-2 py-1 rounded-full border border-purple-500/20">量子计算</span>
+                                <span class="bg-purple-500/10 text-purple-400 text-[10px] px-2 py-1 rounded-full border border-purple-500/20">量子通信</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-      const animate = () => {
-        if (step < messages.length) {
-          compileMessage.textContent = messages[step];
-          progressFill.style.width = `${Math.min(100, ((step + 1) / messages.length) * 100)}%`;
-          step++;
-          setTimeout(animate, stepDuration);
-        } else {
-          setTimeout(() => {
-            document.getElementById('compileResult').style.display = 'block';
-          }, 300);
+            <div class="mb-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-1 h-6 bg-gradient-to-b from-blue-500 to-transparent rounded-full"></div>
+                    <h2 class="text-lg font-semibold text-blue-300">战略性新兴产业 (8)</h2>
+                    <span class="text-xs text-white/30 ml-auto">支柱产业</span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div onclick="startCompile('人工智能', '8')" class="glass p-6 rounded-2xl cursor-pointer matrix-item border-blue-500/20 glow-blue category-badge">
+                        <h4 class="font-bold text-blue-300">人工智能</h4>
+                        <p class="text-xs text-white/40 mt-1">AI智能体、城市大脑</p>
+                    </div>
+                    <div onclick="startCompile('智能网联汽车', '8')" class="glass p-6 rounded-2xl cursor-pointer matrix-item border-blue-500/20 glow-blue category-badge">
+                        <h4 class="font-bold text-blue-300">智能网联汽车</h4>
+                        <p class="text-xs text-white/40 mt-1">自动驾驶、整车制造</p>
+                    </div>
+                    <div onclick="startCompile('半导体', '8')" class="glass p-6 rounded-2xl cursor-pointer matrix-item border-blue-500/20 glow-blue category-badge">
+                        <h4 class="font-bold text-blue-300">半导体</h4>
+                        <p class="text-xs text-white/40 mt-1">芯片设计、集成电路</p>
+                    </div>
+                    <div onclick="startCompile('生物医药', '8')" class="glass p-6 rounded-2xl cursor-pointer matrix-item border-blue-500/20 glow-blue category-badge">
+                        <h4 class="font-bold text-blue-300">生物医药</h4>
+                        <p class="text-xs text-white/40 mt-1">创新药、医疗器械</p>
+                    </div>
+                    <div onclick="startCompile('新能源', '8')" class="glass p-6 rounded-2xl cursor-pointer matrix-item border-blue-500/20 glow-blue category-badge">
+                        <h4 class="font-bold text-blue-300">新能源</h4>
+                        <p class="text-xs text-white/40 mt-1">氢能、储能装备</p>
+                    </div>
+                    <div onclick="startCompile('新材料', '8')" class="glass p-6 rounded-2xl cursor-pointer matrix-item border-blue-500/20 glow-blue category-badge">
+                        <h4 class="font-bold text-blue-300">新材料</h4>
+                        <p class="text-xs text-white/40 mt-1">先进材料、前沿材料</p>
+                    </div>
+                    <div onclick="startCompile('数字经济', '8')" class="glass p-6 rounded-2xl cursor-pointer matrix-item border-blue-500/20 glow-blue category-badge">
+                        <h4 class="font-bold text-blue-300">数字经济</h4>
+                        <p class="text-xs text-white/40 mt-1">大数据、云计算</p>
+                    </div>
+                    <div onclick="startCompile('绿色低碳', '8')" class="glass p-6 rounded-2xl cursor-pointer matrix-item border-blue-500/20 glow-blue category-badge">
+                        <h4 class="font-bold text-blue-300">绿色低碳</h4>
+                        <p class="text-xs text-white/40 mt-1">碳达峰、碳中和</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-1 h-6 bg-gradient-to-b from-gray-400 to-transparent rounded-full"></div>
+                    <h2 class="text-lg font-semibold text-gray-300">优势传统产业 (2)</h2>
+                    <span class="text-xs text-white/30 ml-auto">基础支撑</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div onclick="startCompile('航运物流', '2')" class="glass p-6 rounded-2xl cursor-pointer matrix-item border-gray-500/20 glow-gray category-badge">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-gray-300">航运物流</h4>
+                                <p class="text-xs text-white/40 mt-1">自动化码头、江海联运</p>
+                            </div>
+                            <span class="text-2xl">🚢</span>
+                        </div>
+                    </div>
+                    <div onclick="startCompile('现代商贸', '2')" class="glass p-6 rounded-2xl cursor-pointer matrix-item border-gray-500/20 glow-gray category-badge">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-gray-300">现代商贸</h4>
+                                <p class="text-xs text-white/40 mt-1">跨境电商、国际贸易</p>
+                            </div>
+                            <span class="text-2xl">🏬</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="detail-view" class="hidden">
+            <div class="flex flex-col items-center justify-center min-h-[70vh]">
+                <div id="compile-engine" class="w-full max-w-3xl">
+                    <div class="glass-strong rounded-2xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                <span id="engine-status" class="text-blue-400 text-sm font-mono uppercase tracking-tight">Initializing Engine...</span>
+                            </div>
+                            <span id="compile-progress" class="text-blue-400 font-mono text-lg font-bold">0%</span>
+                        </div>
+                        <div class="w-full bg-white/5 rounded-full h-2 overflow-hidden">
+                            <div id="progress-bar" class="progress-gradient h-full w-0 rounded-full transition-all duration-300"></div>
+                        </div>
+                        <div id="log-output" class="mt-6 font-mono text-xs text-white/40 h-40 overflow-hidden leading-relaxed bg-black/20 rounded-xl p-4"></div>
+                    </div>
+                </div>
+
+                <div id="graph-display" class="hidden w-full mt-12">
+                    <button onclick="goBack()" class="mb-8 text-xs text-white/40 hover:text-white flex items-center gap-2 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        BACK TO SYSTEM
+                    </button>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                        <div class="relative h-72 flex items-center justify-center">
+                            <div class="w-32 h-32 rounded-full bg-gradient-to-br from-blue-600/30 to-purple-600/30 border-2 border-blue-400/50 flex items-center justify-center text-center p-3 z-10 animate-pulse">
+                                <span id="center-node-name" class="text-sm font-bold text-blue-300"></span>
+                            </div>
+                            <div class="absolute w-32 h-32 rounded-full border border-blue-400/20 pulse-ring"></div>
+                            <div class="absolute w-40 h-40 rounded-full border border-blue-400/10 pulse-ring" style="animation-delay: 0.5s"></div>
+                            
+                            <div class="absolute top-8 left-8 glass p-3 text-xs rounded-lg border-blue-400/20 transform -translate-x-4 hover:scale-105 transition-transform">
+                                <div class="text-blue-400 font-semibold mb-1">龙头企业</div>
+                                <div class="text-white/60" id="leader-company"></div>
+                            </div>
+                            <div class="absolute bottom-8 right-8 glass p-3 text-xs rounded-lg border-blue-400/20 transform translate-x-4 hover:scale-105 transition-transform">
+                                <div class="text-blue-400 font-semibold mb-1">应用场景</div>
+                                <div class="text-white/60" id="application-scene"></div>
+                            </div>
+                            <div class="absolute top-1/2 right-0 glass p-3 text-xs rounded-lg border-blue-400/20 transform translate-x-8 -translate-y-1/2 hover:scale-105 transition-transform">
+                                <div class="text-blue-400 font-semibold mb-1">政策支撑</div>
+                                <div class="text-white/60" id="policy-support"></div>
+                            </div>
+                        </div>
+                        <div class="glass-strong p-8 rounded-3xl border-l-4 border-l-blue-500">
+                            <div class="flex items-center gap-4 mb-4">
+                                <h2 class="text-2xl font-bold" id="detail-title"></h2>
+                                <span id="category-tag" class="text-[10px] px-3 py-1 rounded-full border"></span>
+                            </div>
+                            <p class="text-white/60 leading-relaxed text-sm mb-6" id="detail-desc"></p>
+                            <div class="flex flex-wrap gap-3">
+                                <span class="bg-blue-500/10 text-blue-400 text-xs px-3 py-1.5 rounded-full border border-blue-500/20">产业编译完成</span>
+                                <span class="bg-purple-500/10 text-purple-400 text-xs px-3 py-1.5 rounded-full border border-purple-500/20">AI 实体识别 100%</span>
+                                <span class="bg-green-500/10 text-green-400 text-xs px-3 py-1.5 rounded-full border border-green-500/20">知识图谱生成</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const logs = [
+            "SCANNING NANSHA INDUSTRIAL DATABASE...",
+            "EXTRACTING ENTITY RELATIONSHIPS FROM '8+2+3' POLICY...",
+            "MAPPING GEOGRAPHIC NODES: WANGQINGSHA, DAGANG...",
+            "LINKING CORPORATE ENTITIES: CAS SPACE, GEELY, DJI...",
+            "GENERATING KNOWLEDGE GRAPH NODES...",
+            "OPTIMIZING LAYOUT FOR NANSHA INFRASTRUCTURE...",
+            "ESTABLISHING INDUSTRY CONNECTIONS...",
+            "VALIDATING DATA INTEGRITY...",
+            "COMPILATION SUCCESSFUL."
+        ];
+
+        const industryData = {
+            '空天产业': { leader: '中科宇航', scene: '商业航天发射', policy: '探天九条' },
+            '深海产业': { leader: '云洲智能', scene: '南沙自动化码头', policy: '海洋经济规划' },
+            '量子科技': { leader: '国盾量子', scene: '量子通信网络', policy: '量子信息战略' },
+            '人工智能': { leader: '云从科技', scene: '智慧城市建设', policy: 'AI产业扶持计划' },
+            '智能网联汽车': { leader: '广汽集团', scene: '自动驾驶示范区', policy: '智能网联政策' },
+            '半导体': { leader: '粤芯半导体', scene: '芯片制造基地', policy: '集成电路规划' },
+            '生物医药': { leader: '香雪制药', scene: '生物医药产业园', policy: '健康产业政策' },
+            '新能源': { leader: '明阳智能', scene: '氢能示范基地', policy: '双碳战略' },
+            '新材料': { leader: '金发科技', scene: '先进材料研发', policy: '新材料专项' },
+            '数字经济': { leader: '腾讯云', scene: '数字经济创新中心', policy: '数字南沙计划' },
+            '绿色低碳': { leader: '广州发展', scene: '碳中和示范区', policy: '绿色发展规划' },
+            '航运物流': { leader: '中远海运', scene: '南沙港', policy: '海港经济政策' },
+            '现代商贸': { leader: '唯品会', scene: '跨境电商产业园', policy: '电商扶持政策' }
+        };
+
+        const categoryColors = {
+            '3': { bg: 'bg-purple-500/10', text: 'text-purple-400', border: 'border-purple-500/20', label: '未来产业' },
+            '8': { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/20', label: '新兴产业' },
+            '2': { bg: 'bg-gray-500/10', text: 'text-gray-400', border: 'border-gray-500/20', label: '传统产业' }
+        };
+
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (8 + Math.random() * 4) + 's';
+                particle.style.width = particle.style.height = (2 + Math.random() * 4) + 'px';
+                container.appendChild(particle);
+            }
         }
-      };
-      animate();
-    }
 
-    function navigateToDetail() {
-      document.getElementById('compileOverlay').classList.remove('active');
-      document.getElementById('homePage').classList.remove('active');
-      document.getElementById('detailPage').classList.add('active');
-      loadDetailPage(currentIndustry);
-    }
+        function startCompile(name, category) {
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('detail-view').classList.remove('hidden');
+            document.getElementById('compile-engine').classList.remove('hidden');
+            document.getElementById('graph-display').classList.add('hidden');
+            
+            let progress = 0;
+            const bar = document.getElementById('progress-bar');
+            const percent = document.getElementById('compile-progress');
+            const logBox = document.getElementById('log-output');
+            const status = document.getElementById('engine-status');
 
-    function goBack() {
-      document.getElementById('detailPage').classList.remove('active');
-      document.getElementById('homePage').classList.add('active');
-      closeWikiPanel();
-    }
+            logBox.innerHTML = '';
+            bar.style.width = '0%';
+            percent.innerText = '0%';
 
-    function loadDetailPage(industry) {
-      document.getElementById('detailTitle').textContent = industry.name;
-      document.getElementById('detailCategory').textContent = getCategoryLabel(industry.category);
-      document.getElementById('wikiOverview').textContent = industry.wiki.overview;
+            const statusMessages = [
+                'Initializing Engine...',
+                'Scanning Database...',
+                'Analyzing Industry Data...',
+                'Generating Knowledge Graph...',
+                'Compiling Relationships...',
+                'Finalizing...'
+            ];
 
-      const techTags = document.getElementById('techTags');
-      techTags.innerHTML = '';
-      industry.wiki.keyTech.forEach(tech => {
-        const tag = document.createElement('span');
-        tag.className = 'tech-tag';
-        tag.textContent = tech;
-        techTags.appendChild(tag);
-      });
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 12) + 3;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => showGraph(name, category), 800);
+                }
+                bar.style.width = progress + '%';
+                percent.innerText = progress + '%';
 
-      const goalsList = document.getElementById('goalsList');
-      goalsList.innerHTML = '';
-      industry.wiki.developmentGoals.forEach(goal => {
-        const item = document.createElement('div');
-        item.className = 'goal-item';
-        item.innerHTML = `<span class="goal-bullet">•</span><span>${goal}</span>`;
-        goalsList.appendChild(item);
-      });
-
-      const statsGrid = document.getElementById('statsGrid');
-      statsGrid.innerHTML = `
-        <div class="stat-card" style="border-left-color: #00D4FF">
-          <div class="stat-label">全国排名</div>
-          <div class="stat-value">${industry.ranking}</div>
-        </div>
-        <div class="stat-card" style="border-left-color: #FFD700">
-          <div class="stat-label">产业链位置</div>
-          <div class="stat-value">${industry.chainPosition}</div>
-        </div>
-        <div class="stat-card" style="border-left-color: #FF6B6B">
-          <div class="stat-label">核心政策</div>
-          <div class="stat-value">${industry.corePolicy}</div>
-        </div>
-      `;
-
-      drawGraph(industry);
-    }
-
-    function getCategoryLabel(category) {
-      const labels = {
-        strategic: '战略新兴产业',
-        traditional: '传统优势产业',
-        future: '未来产业'
-      };
-      return labels[category] || '';
-    }
-
-    function drawGraph(industry) {
-      const canvas = document.getElementById('graphCanvas');
-      const ctx = canvas.getContext('2d');
-      const container = document.getElementById('graphContainer');
-      const rect = container.getBoundingClientRect();
-      
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const radius = Math.min(rect.width, rect.height) * 0.25;
-
-      ctx.clearRect(0, 0, rect.width, rect.height);
-
-      ctx.strokeStyle = 'rgba(0, 125, 255, 0.3)';
-      ctx.lineWidth = 2;
-
-      const nodes = [];
-
-      nodes.push({ type: 'center', x: centerX, y: centerY, name: industry.name, color: industry.color });
-
-      industry.enterprises.forEach((ent, index) => {
-        const angle = (index * 2 * Math.PI) / industry.enterprises.length - Math.PI / 2;
-        nodes.push({
-          type: 'enterprise',
-          x: centerX + radius * Math.cos(angle),
-          y: centerY + radius * Math.sin(angle),
-          name: ent.name,
-          color: '#00D4FF',
-          data: ent
-        });
-      });
-
-      industry.scenarios.forEach((scen, index) => {
-        const angle = (index * 2 * Math.PI) / industry.scenarios.length + Math.PI / 4;
-        nodes.push({
-          type: 'scenario',
-          x: centerX + (radius + 60) * Math.cos(angle),
-          y: centerY + (radius + 60) * Math.sin(angle),
-          name: scen.name,
-          color: '#FFD700',
-          data: scen
-        });
-      });
-
-      industry.policies.forEach((pol, index) => {
-        const angle = (index * 2 * Math.PI) / industry.policies.length - Math.PI / 4;
-        nodes.push({
-          type: 'policy',
-          x: centerX + (radius + 120) * Math.cos(angle),
-          y: centerY + (radius + 120) * Math.sin(angle),
-          name: pol.name,
-          color: '#FF6B6B',
-          data: pol
-        });
-      });
-
-      nodes.forEach(node => {
-        if (node.type !== 'center') {
-          ctx.beginPath();
-          ctx.moveTo(centerX, centerY);
-          ctx.lineTo(node.x, node.y);
-          ctx.stroke();
+                const statusIndex = Math.min(Math.floor(progress / 20), statusMessages.length - 1);
+                status.innerText = statusMessages[statusIndex];
+                
+                if (Math.random() > 0.6 || progress > 90) {
+                    const logLine = document.createElement('div');
+                    logLine.className = 'log-item';
+                    logLine.innerText = `[${new Date().toLocaleTimeString()}] > ${logs[Math.floor(Math.random() * logs.length)]}`;
+                    logBox.appendChild(logLine);
+                    logBox.scrollTop = logBox.scrollHeight;
+                }
+            }, 120);
         }
-      });
 
-      const graphNodes = document.getElementById('graphNodes');
-      graphNodes.innerHTML = '';
+        function showGraph(name, category) {
+            document.getElementById('compile-engine').classList.add('hidden');
+            document.getElementById('graph-display').classList.remove('hidden');
+            document.getElementById('center-node-name').innerText = name;
+            document.getElementById('detail-title').innerText = name;
+            
+            const data = industryData[name] || { leader: '龙头企业', scene: '应用场景', policy: '政策支撑' };
+            document.getElementById('leader-company').innerText = data.leader;
+            document.getElementById('application-scene').innerText = data.scene;
+            document.getElementById('policy-support').innerText = data.policy;
 
-      nodes.forEach((node, index) => {
-        const nodeEl = document.createElement('div');
-        nodeEl.className = node.type === 'center' ? 'graph-node node-center' : 'graph-node node-outer';
-        nodeEl.style.left = `${node.x}px`;
-        nodeEl.style.top = `${node.y}px`;
-        nodeEl.style.transform = node.type === 'center' ? 'translate(-50%, -50%)' : 'translate(-50%, -50%) scale(0)';
-        nodeEl.style.transition = `all 0.5s ease ${index * 100}ms`;
-        nodeEl.style.color = node.color;
-        
-        setTimeout(() => {
-          nodeEl.style.transform = node.type === 'center' ? 'translate(-50%, -50%)' : 'translate(-50%, -50%) scale(1)';
-        }, 100);
+            const colors = categoryColors[category];
+            const tag = document.getElementById('category-tag');
+            tag.className = `${colors.bg} ${colors.text} ${colors.border} text-[10px] px-3 py-1 rounded-full border`;
+            tag.innerText = colors.label;
 
-        nodeEl.innerHTML = `
-          <div class="node-bg" style="background: ${node.color}"></div>
-          <div class="node-name">${node.name}</div>
-          ${node.type !== 'center' ? `<div class="node-type" style="color: ${node.color}">${getNodeTypeLabel(node.type)}</div>` : ''}
-        `;
+            document.getElementById('detail-desc').innerText = `针对${name}，系统已成功编译南沙区产业链节点。该产业作为南沙"8+2+3"体系的核心组成部分，目前已在万顷沙及大岗基地形成规模效应，涵盖了从上游研发到下游场景应用的全生命周期。`;
+        }
 
-        nodeEl.onclick = () => openWikiPanel(node);
-        graphNodes.appendChild(nodeEl);
-      });
-    }
+        function goBack() {
+            document.getElementById('home-view').classList.remove('hidden');
+            document.getElementById('detail-view').classList.add('hidden');
+            document.getElementById('progress-bar').style.width = '0%';
+            document.getElementById('log-output').innerHTML = '';
+        }
 
-    function getNodeTypeLabel(type) {
-      const labels = {
-        enterprise: '企业',
-        scenario: '载体',
-        policy: '政策'
-      };
-      return labels[type] || '';
-    }
-
-    function openWikiPanel(node) {
-      document.getElementById('panelIcon').style.background = node.color;
-      document.getElementById('panelIcon').style.opacity = '0.3';
-      document.getElementById('panelTitle').textContent = node.name;
-      document.getElementById('panelType').textContent = getNodeTypeLabel(node.type);
-      document.getElementById('panelType').style.color = node.color;
-      document.getElementById('panelDescription').textContent = node.data?.description || '';
-
-      const panelTag = document.getElementById('panelTag');
-      if (node.data?.type) {
-        panelTag.innerHTML = `
-          <span>类型：</span>
-          <span class="tag-value" style="background: ${node.color}20; color: ${node.color}">${node.data.type}</span>
-        `;
-      } else {
-        panelTag.innerHTML = '';
-      }
-
-      document.getElementById('wikiPanel').classList.add('active');
-    }
-
-    function closeWikiPanel() {
-      document.getElementById('wikiPanel').classList.remove('active');
-    }
-
-    document.addEventListener('DOMContentLoaded', initHomePage);
-  </script>
+        createParticles();
+    </script>
 </body>
 </html>
